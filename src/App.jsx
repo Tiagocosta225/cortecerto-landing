@@ -39,11 +39,11 @@ function App() {
         <div className="container hero-content">
           <div className="hero-text">
             <h1 className="hero-title">
-              O Corte Certo não é um sistema de gestão.
-              <span className="highlight"> É só a agenda que a sua barbearia realmente precisa.</span>
+              O CorteCerto é a agenda inteligente da sua barbearia.
+              <span className="highlight"> Sem complicação mais cortes e menos desencontros!</span>
             </h1>
             <p className="hero-subtitle">
-              Sem ERP, sem complicação. Só agenda simples pra barbearia.
+              Sua barbearia organizada, clientes sempre no horário.
             </p>
             <div className="cta-buttons">
               <button className="btn btn-primary">Começar Grátis</button>

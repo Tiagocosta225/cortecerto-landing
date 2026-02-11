@@ -1,0 +1,53 @@
+name: Deploy Cortecerto Landing
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: 'npm'
+    
+    - name: Install & Build
+      run: |
+        npm ci
+        npm run build
+    
+    - name: Deploy to Server
+      uses: appleboy/scp-action@v1
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "dist/*"
+        target: "/tmp/cortecerto-dist"
+    
+    - name: SSH Deploy Server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          # Para container antigo
+          docker rm -f cortecerto-landing || true
+          
+          # Copia dist pro projeto
+          rm -rf /home/goku/cortecerto-landing-page-v2/cortecerto-landing/dist
+          cp -r /tmp/cortecerto-dist/* /home/goku/cortecerto-landing-page-v2/cortecerto-landing/
+          
+          # Limpa temp
+          rm -rf /tmp/cortecerto-dist
+          
+          # Rebuild + Run Docker
+          cd /home/goku/cortecerto-landing-page-v2/cortecerto-landing
+          docker build -t cortecerto-landing .
+          docker run -d -p 8080:80 --restart unless-stopped --name cortecerto-landing cortecerto-landing
+          
+          echo "🚀 Deploy OK: http://192.168.15.13:8080"
